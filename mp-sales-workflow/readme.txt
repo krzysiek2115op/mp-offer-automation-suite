@@ -4,7 +4,7 @@ Tags: sprzedaz, crm, workflow, follow-up
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.13
+Stable tag: 1.3.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,17 @@ rekordow SPF/DKIM/DMARC oraz blokady katalogu z ofertami PDF. Pelna checklista:
 powiadomien do klientow.
 
 == Changelog ==
+
+= 1.3.14 =
+* Lista wyboru statusu na pulpicie procesów dostała nazwę. Bez niej czytnik
+  ekranu ogłaszał samo „lista rozwijana", a takich list jest tyle, ile wierszy
+  — użytkownik niewidomy słyszał osiem identycznych kontrolek i nie miał jak
+  ustalić, która dotyczy którego procesu. Etykieta niesie nazwę firmy i jest
+  ukryta wzrokowo, bo widzącemu kontekst daje sam wiersz tabeli.
+
+Znalezione przez axe-core uruchomione w przeglądarce PO ZALOGOWANIU. Lighthouse
+tego ekranu nie widzi w ogóle, bo nie umie się zalogować — a ekran procesu jest
+za logowaniem.
 
 = 1.3.13 =
 * Handlowiec i manager wracaja do panelu. Na kazdej instalacji z WooCommerce —

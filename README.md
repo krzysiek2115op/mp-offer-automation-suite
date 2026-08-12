@@ -20,9 +20,9 @@ danych między formularzem, WooCommerce i pocztą.
 
 | # | Wtyczka | Wersja | Baza | Opis |
 |---|---------|--------|------|------|
-| 1 | `mp-lead-intake` | 1.3.12 | BD-3 | Przyjęcie i kwalifikacja lead-a z formularza |
+| 1 | `mp-lead-intake` | 1.3.14 | BD-3 | Przyjęcie i kwalifikacja lead-a z formularza |
 | 2 | `mp-offer-builder` | 1.3.12 | BD-2 | Kalkulacja cenowa, integracja WooCommerce, oferty PDF |
-| 3 | `mp-sales-workflow` | 1.3.13 | BD-1 | Statusy procesu, handlowiec, powiadomienia, follow-up, dashboard |
+| 3 | `mp-sales-workflow` | 1.3.14 | BD-1 | Statusy procesu, handlowiec, powiadomienia, follow-up, dashboard |
 
 Kolejność instalacji ma znaczenie: **1, potem 2, potem 3**. Wtyczka 2 nasłuchuje
 zdarzenia z wtyczki 1, a wtyczka 3 — zdarzeń z obu poprzednich. Gotowe paczki
@@ -249,6 +249,57 @@ co dałoby się wziąć za prawdziwy adres.
 
 Raporty z kolejnych przebiegów leżą w `audyt/raport-*.txt` na gałęzi
 `audyt-projektu`, a szczegółowy opis narzędzia — w `audyt/README.md`.
+
+---
+
+## Wydanie 1.3.14 — dwa błędy znalezione przez narzędzia, których nie uruchamialiśmy
+
+Sesja z zewnętrznymi analizatorami: **PHPStan**, **Psalm**, **PHPMD**,
+**OSV-Scanner** (Google), **Lighthouse** (Google), **axe-core** i oficjalne
+**WordPress Plugin Check**. Znalazły dwa realne błędy — oba niewidoczne dla
+100 plików testowych, które ten projekt już miał.
+
+**1. Pole formularza wysłane jako tablica wywracało wtyczkę.** Nadawca decyduje
+nie tylko o treści pola, ale i o jego **typie**: `email[]=a@b.test` daje tablicę.
+`sanitize_email()` szło z nią prosto do `strlen()` → `TypeError`. Bez logowania,
+z publicznego formularza, jednym żądaniem: **HTTP 500**. Jedenaście pozostałych
+pól było bezpiecznych *przypadkiem* — `sanitize_text_field()` ma własnego
+strażnika przed tablicą, a jedyne pole bez strażnika było polem **wymaganym**.
+
+**2. Lista wyboru statusu nie miała dostępnej nazwy.** Czytnik ekranu ogłaszał
+samo „lista rozwijana", a takich list jest tyle, ile wierszy — użytkownik
+niewidomy słyszał osiem identycznych kontrolek. Waga `critical`.
+
+### Dwa razy z rzędu narzędzia tej samej klasy się rozjechały
+
+| Błąd | Znalazł | Przeoczył | Dlaczego |
+|---|---|---|---|
+| `email[]` → 500 | Psalm | PHPStan | inny algorytm wnioskowania o typach |
+| `select` bez nazwy | axe-core | Lighthouse | Lighthouse nie umie się **zalogować** |
+
+Drugi rozjazd jest ciekawszy: Lighthouse dał **100/100** za dostępność stron
+publicznych i miał rację. Błąd siedział na ekranie, do którego nie ma dostępu.
+**Jedno narzędzie danej klasy to za mało** — raz decyduje algorytm, raz zasięg.
+
+### Wyniki pozostałych narzędzi
+
+| Narzędzie | Wynik |
+|---|---|
+| Lighthouse — strona główna | wydajność 97 · dostępność **100** · praktyki **100** · SEO 91 |
+| Lighthouse — formularz | wydajność 97 · dostępność **100** · praktyki **100** · SEO **100** |
+| OSV-Scanner (Google) | **0** znanych podatności w wysyłanym kodzie |
+| axe-core po naprawie | **0** naruszeń na wszystkich trzech ekranach wtyczek |
+| WP Plugin Check | 0 błędów poza językiem `readme.txt` — patrz niżej |
+
+Każde zgłoszenie Lighthouse z sekcji wydajności wskazuje na WooCommerce, motyw
+albo jQuery z rdzenia WordPressa — **żadne na kod tych wtyczek**.
+
+**Uwaga o Plugin Check:** narzędzie zgłasza 6 błędów „readme must be written in
+standard English". Pliki `readme.txt` są po polsku **świadomie** — produkt jest
+dla polskiego klienta i cała dokumentacja jest w jego języku. To wymóg
+repozytorium WordPress.org, do którego ta dostawa nie trafia.
+
+**Wtyczka 2 zostaje na 1.3.12** — nie miała w tym wydaniu żadnej zmiany.
 
 ---
 

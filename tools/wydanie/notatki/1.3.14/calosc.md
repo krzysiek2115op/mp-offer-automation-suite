@@ -1,0 +1,13 @@
+Wydanie z dwoch napraw, obu znalezionych przez NARZEDZIA, ktorych ten projekt nigdy wczesniej nie uruchamial. Zaden test w repozytorium ich nie widzial, bo zaden nie zadawal pytania, ktore te narzedzia zadaja.
+
+POLE FORMULARZA WYSLANE JAKO TABLICA WYWRACALO WTYCZKE. Nadawca decyduje nie tylko o TRESCI pola, ale i o jego TYPIE: `email=a@b.test` daje lancuch, a `email[]=a@b.test` — tablice. Odczyt zakladal lancuch dwanascie razy i ani razu tego nie sprawdzal. Jedenascie pol bylo bezpiecznych PRZEZ PRZYPADEK, bo `sanitize_text_field()` ma wlasnego straznika przed tablica; `sanitize_email()` go nie ma i szlo prosto do `strlen()`. Pomiar na czystej instalacji: `POST email[]=x` -> HTTP 500 i „Uncaught TypeError: strlen(): Argument #1 must be of type string, array given". Bez logowania, z publicznego formularza, jednym zadaniem — odpowiedz 500 zamiast komunikatu i wpis „Fatal error" w dzienniku serwera. Jedyne pole bez straznika bylo przy tym polem WYMAGANYM.
+
+LISTA WYBORU STATUSU NIE MIALA DOSTEPNEJ NAZWY. Na pulpicie procesow `<select name="to_status">` nie mial ani etykiety, ani `aria-label`. Czytnik ekranu oglaszal samo „lista rozwijana", a takich list jest tyle, ile wierszy: uzytkownik niewidomy slyszal osiem identycznych kontrolek i nie mial jak ustalic, ktora dotyczy ktorego procesu. Waga „critical".
+
+CO JE ZNALAZLO — I DLACZEGO WARTO O TYM NAPISAC. Pierwsza usterke zglosil Psalm, drugi analizator statyczny uruchomiony obok PHPStana; PHPStan na tym samym pliku nie powiedzial nic. Druga znalazl axe-core uruchomiony w przegladarce PO ZALOGOWANIU; Lighthouse dal 100/100 za dostepnosc stron publicznych i mial racje — blad siedzial na ekranie, do ktorego nie umie dojsc, bo nie umie sie zalogowac. Dwa razy z rzedu okazalo sie, ze jedno narzedzie danej klasy to za malo, a roznica bierze sie raz z algorytmu, a raz z ZASIEGU.
+
+WYNIKI POZOSTALYCH NARZEDZI, dla porzadku. Lighthouse (Google) dla stron budowanych przez te wtyczki: strona glowna 97/100/100/91, formularz 97/100/100/100 (wydajnosc, dostepnosc, dobre praktyki, SEO). Kazde zgloszenie z sekcji wydajnosci wskazuje na WooCommerce, motyw albo jQuery z rdzenia WordPressa — zadne na kod tych wtyczek. OSV-Scanner (Google): zero znanych podatnosci w wysylanym kodzie. axe-core po naprawie: zero naruszen na wszystkich trzech ekranach wtyczek. Oficjalne WordPress Plugin Check: zero bledow poza jezykiem pliku `readme.txt`, ktory jest po polsku swiadomie — produkt jest dla polskiego klienta.
+
+WTYCZKA 2 NIE MA W TYM WYDANIU ZADNEJ ZMIANY i zostaje na 1.3.12.
+
+Regresja: 100 plikow testowych, wszystkie PASS. PHPCS: kod wyjscia 0.

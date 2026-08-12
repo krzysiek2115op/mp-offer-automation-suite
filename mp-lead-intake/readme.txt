@@ -4,7 +4,7 @@ Tags: leads, formularz, b2b, nip, vat
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.12
+Stable tag: 1.3.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,6 +16,20 @@ Pierwsza z trzech wtyczek procesu "formularz → oferta". Odpowiada za odbiór
 zgłoszenia z formularza, wstępną kwalifikację lead-a i zapis do dedykowanej bazy.
 
 == Changelog ==
+
+= 1.3.14 =
+* Pole formularza wysłane jako tablica przestało wywracać wtyczkę. Nadawca
+  decyduje nie tylko o treści pola, ale i o jego typie: `email=a@b.test` daje
+  łańcuch, a `email[]=a@b.test` — tablicę. Odczyt zakładał łańcuch dwanaście
+  razy i ani razu tego nie sprawdzał. Jedenaście pól było bezpiecznych
+  przypadkiem, bo `sanitize_text_field()` ma własnego strażnika przed tablicą;
+  `sanitize_email()` go nie ma i szło prosto do `strlen()`. Skutek: każdy, bez
+  logowania, jednym żądaniem do publicznego formularza dostawał odpowiedź 500
+  i wpis „Fatal error" w dzienniku serwera. Teraz jest jeden odczyt pola dla
+  wszystkich dwunastu i zawsze oddaje łańcuch.
+
+Znalezione analizą statyczną (Psalm), której ten projekt wcześniej nie
+uruchamiał, i potwierdzone żądaniem HTTP na czystej instalacji.
 
 = 1.3.12 =
 * "NIP jest wymagany" nie pada już dla pola, które zostało wypełnione. Sprawdzenie
