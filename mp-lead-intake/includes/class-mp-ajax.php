@@ -95,6 +95,64 @@ class MP_Lead_Intake_Ajax {
 	}
 
 	/**
+	 * Czyta jedno pole żądania jako łańcuch — cokolwiek nadawca przysłał.
+	 *
+	 * NADAWCA DECYDUJE O TYPIE, NIE TYLKO O TREŚCI. `email=a@b.test` daje łańcuch,
+	 * ale `email[]=a@b.test` daje TABLICĘ — i to samo dotyczy każdego pola
+	 * formularza. Dwanaście osobnych wyrażeń `isset() ? sanitize_*() : ''`
+	 * zakładało łańcuch dwanaście razy, a żadne z nich tego nie sprawdzało.
+	 *
+	 * Uszło to na sucho jedenaście razy przez przypadek: `sanitize_text_field()`
+	 * ma własnego strażnika (`is_array()` → pusty łańcuch), więc pola tekstowe
+	 * kończyły się poprawną odmową. `sanitize_email()` takiego strażnika NIE MA
+	 * i idzie prosto do `strlen()`. Pomiar na czystej instalacji: `email[]=x`
+	 * dawało HTTP 500 i „Uncaught TypeError: strlen(): Argument #1 ($string)
+	 * must be of type string, array given" — bez logowania, z publicznego
+	 * formularza, jednym żądaniem.
+	 *
+	 * Sprawdzenie jest tutaj, a nie w każdym z dwunastu miejsc, bo bezpieczeństwo
+	 * pola nie może zależeć od tego, którą funkcję czyszczącą ktoś akurat wybrał.
+	 * Znalezione analizą statyczną (Psalm: `PossiblyInvalidArgument`), której ten
+	 * projekt wcześniej nie uruchamiał.
+	 *
+	 * @param string $klucz       Nazwa pola w `$_POST`.
+	 * @param string $sanityzator Funkcja czyszcząca WordPressa.
+	 * @return string Zawsze łańcuch — pusty, gdy pola nie ma albo nie jest skalarem.
+	 */
+	private static function pole_tekstowe( $klucz, $sanityzator = 'sanitize_text_field' ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce sprawdzany wyżej w handle().
+		if ( ! isset( $_POST[ $klucz ] ) ) {
+			return '';
+		}
+
+		/*
+		 * Tablica, obiekt i null nie sa tekstem i nie ma czego z nich ratowac:
+		 * formularz ma dwanascie pol jednowartosciowych, wiec wartosc zlozona
+		 * moze byc albo pomylka nadawcy, albo proba. W obu razach odpowiedzia
+		 * jest „pole puste" — a te wtyczka umie obsluzyc.
+		 *
+		 * Sprawdzamy PRZED `wp_unslash()`, bo ono na tablicy przechodzi
+		 * bez slowa i problem wychodzi dopiero u sanityzatora.
+		 */
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- jw.
+		if ( ! is_scalar( $_POST[ $klucz ] ) ) {
+			return '';
+		}
+
+		/*
+		 * Sanityzator jest podawany jako nazwa funkcji i PHPCS nie umie za tym
+		 * pojsc — sniff `ValidatedSanitizedInput` zglasza „nie sanityzowano",
+		 * mimo ze KAZDE wyjscie tej metody przechodzi przez jedna z funkcji
+		 * czyszczacych WordPressa. Rzutowanie na `string` odbywa sie przed
+		 * wywolaniem, wiec sanityzator zawsze dostaje typ, ktorego oczekuje.
+		 */
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$surowa = (string) wp_unslash( $_POST[ $klucz ] );
+
+		return (string) call_user_func( $sanityzator, $surowa );
+	}
+
+	/**
 	 * Obsługuje zgłoszenie: buduje kontekst i uruchamia pipeline.
 	 *
 	 * @return void
@@ -146,18 +204,18 @@ class MP_Lead_Intake_Ajax {
 
 		// Dane wejściowe — whitelist kluczy (nieoczekiwane pola POST są ignorowane).
 		$input = array(
-			'company_name'      => isset( $_POST['company_name'] ) ? sanitize_text_field( wp_unslash( $_POST['company_name'] ) ) : '',
-			'nip'               => isset( $_POST['nip'] ) ? sanitize_text_field( wp_unslash( $_POST['nip'] ) ) : '',
-			'email'             => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
-			'phone'             => isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '',
-			'segment'           => isset( $_POST['segment'] ) ? sanitize_text_field( wp_unslash( $_POST['segment'] ) ) : '',
-			'country'           => isset( $_POST['country'] ) ? sanitize_text_field( wp_unslash( $_POST['country'] ) ) : '',
-			'products'          => isset( $_POST['products'] ) ? sanitize_textarea_field( wp_unslash( $_POST['products'] ) ) : '',
-			'est_volume'        => isset( $_POST['est_volume'] ) ? sanitize_text_field( wp_unslash( $_POST['est_volume'] ) ) : '',
-			'consent_marketing' => ! empty( $_POST['consent_marketing'] ),
-			'consent_rodo'      => ! empty( $_POST['consent_rodo'] ),
-			'mp_hp'             => isset( $_POST['mp_hp'] ) ? sanitize_text_field( wp_unslash( $_POST['mp_hp'] ) ) : '',
-			'mp_nonce'          => isset( $_POST['mp_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['mp_nonce'] ) ) : '',
+			'company_name'      => self::pole_tekstowe( 'company_name' ),
+			'nip'               => self::pole_tekstowe( 'nip' ),
+			'email'             => self::pole_tekstowe( 'email', 'sanitize_email' ),
+			'phone'             => self::pole_tekstowe( 'phone' ),
+			'segment'           => self::pole_tekstowe( 'segment' ),
+			'country'           => self::pole_tekstowe( 'country' ),
+			'products'          => self::pole_tekstowe( 'products', 'sanitize_textarea_field' ),
+			'est_volume'        => self::pole_tekstowe( 'est_volume' ),
+			'consent_marketing' => ! empty( $_POST['consent_marketing'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			'consent_rodo'      => ! empty( $_POST['consent_rodo'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			'mp_hp'             => self::pole_tekstowe( 'mp_hp' ),
+			'mp_nonce'          => self::pole_tekstowe( 'mp_nonce' ),
 			'request_id'        => $request_id,
 		);
 
