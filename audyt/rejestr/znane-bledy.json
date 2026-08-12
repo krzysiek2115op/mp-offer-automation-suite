@@ -2081,6 +2081,48 @@
       "test": "mp-sales-workflow/tests/naprawy/rola-nie-jest-wypychana-z-panelu.php (16 asercji) + raporty/ODBIOR-1.3.12.md, sekcja E",
       "para": "1.15",
       "uwaga": "Naprawione i opublikowane w 1.3.13. Przy okazji wyszlo, ze asercja „handlowiec nie oglada listy zgloszen” przechodzila WYLACZNIE dzieki tej blokadzie — ochrona przez przypadek. Handlowiec ma `mp_view_leads` i lista jest dla niego."
+    },
+    {
+      "id": "NARZ-F11",
+      "data": "2026-08-12",
+      "wtyczka": "mp-lead-intake",
+      "tytul": "Pole formularza wyslane jako tablica wywracalo wtyczke (HTTP 500 z publicznego punktu wejscia)",
+      "klasa": "typ-wejscia-zalozony-nie-sprawdzony",
+      "plik": "mp-lead-intake/includes/class-mp-ajax.php",
+      "dowod": "`sanitize_email( wp_unslash( $_POST['email'] ) )` przy `email[]=x` dostawalo tablice i szlo do `strlen()`. Pomiar: HTTP 500, „Uncaught TypeError: strlen(): Argument #1 ($string) must be of type string, array given”.",
+      "skutek": "Kazdy, bez logowania, jednym zadaniem do publicznego formularza wywracal obsluge zgloszen. Odpowiedz 500 zamiast komunikatu, „Fatal error” w dzienniku serwera, a przy WP_DEBUG_DISPLAY — sciezki na ekranie.",
+      "lekcja": "Nadawca decyduje nie tylko o TRESCI pola, ale i o jego TYPIE. Jedenascie pol bylo bezpiecznych przez przypadek — `sanitize_text_field()` ma straznika przed tablica, `sanitize_email()` nie ma. Bezpieczenstwo pola nie moze zalezec od tego, ktora funkcje czyszczaca ktos akurat wybral.",
+      "test": "mp-lead-intake/tests/naprawy/pole-formularza-jako-tablica.php (24 asercje)",
+      "para": "1.15",
+      "uwaga": "Znalezione przez Psalma; PHPStan poziom 5 na tym samym pliku NIE zglosil nic. Naprawione i opublikowane w 1.3.14."
+    },
+    {
+      "id": "NARZ-F12",
+      "data": "2026-08-12",
+      "wtyczka": "mp-sales-workflow",
+      "tytul": "Lista wyboru statusu bez dostepnej nazwy — ekran nieuzywalny dla czytnika ekranu",
+      "klasa": "kontrolka-bez-nazwy",
+      "plik": "mp-sales-workflow/includes/admin/class-mp-sw-admin.php",
+      "dowod": "`<select name=\"to_status\">` bez etykiety i bez `aria-label`. axe-core: regula `select-name`, waga „critical”, 8 wezlow na jednym ekranie.",
+      "skutek": "Czytnik ekranu oglaszal samo „lista rozwijana”. Takich list jest tyle, ile wierszy — uzytkownik niewidomy slyszal osiem identycznych kontrolek i nie mial jak ustalic, ktora dotyczy ktorego procesu.",
+      "lekcja": "Lighthouse dal 100/100 za dostepnosc stron publicznych i MIAL RACJE — nie umie sie zalogowac, wiec ekranow za logowaniem nie widzi w ogole. Roznica miedzy narzedziami bierze sie nie tylko z algorytmu, ale i z ZASIEGU.",
+      "test": "audyt axe-core (tools) — 0 naruszen na trzech ekranach wtyczek po naprawie",
+      "para": "1.26",
+      "uwaga": "Znalezione przez axe-core po zalogowaniu. Naprawione i opublikowane w 1.3.14."
+    },
+    {
+      "id": "NARZ-F13",
+      "data": "2026-08-12",
+      "wtyczka": "mp-offer-builder",
+      "tytul": "Katalog `vendor/` jedzie do klienta bez lockfile'a — skanery podatnosci po cichu go pomijaja",
+      "klasa": "brak-manifestu-dla-narzedzi",
+      "plik": "mp-offer-builder/vendor/",
+      "dowod": "OSV-Scanner (Google) na drzewie repozytorium zameldowal „Scanned mp-offer-builder/vendor file and found 0 packages” i przeszedl dalej. Dopiero lock zbudowany recznie z `vendor/composer/installed.json` dal szesc pakietow do sprawdzenia.",
+      "skutek": "Zaden automatyczny skaner nie powie, czy dolaczony dompdf ma znana podatnosc — a to jedyna biblioteka trzeciej strony w calej dostawie i to ona przetwarza dane klienta do PDF.",
+      "lekcja": "Cisza narzedzia nie jest odpowiedzia „czysto”. „0 packages” i „0 vulnerabilities” wygladaja w raporcie tak samo, a znacza cos zupelnie innego.",
+      "test": "",
+      "para": "1.15",
+      "uwaga": "Sprawdzone recznie: dompdf 3.1.6 i pozostale piec pakietow bez znanych podatnosci. Sama luka OTWARTA — do zamkniecia dolozeniem locka do paczki."
     }
   ]
 }
