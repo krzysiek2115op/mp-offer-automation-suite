@@ -393,7 +393,29 @@ class MP_SW_Admin {
 			}
 		}
 
-		echo '<select name="to_status">';
+		/*
+		 * LISTA WYBORU MUSI POWIEDZIEĆ, CZEGO DOTYCZY. Bez nazwy czytnik ekranu
+		 * ogłasza samo „lista rozwijana", a na tym pulpicie takich list jest
+		 * tyle, ile wierszy — użytkownik niewidomy słyszał osiem identycznych
+		 * kontrolek i nie miał jak ustalić, którego procesu dotyczy która.
+		 * Etykieta niesie firmę, więc rozróżnia wiersze; jest schowana wzrokowo
+		 * (`screen-reader-text` z rdzenia WordPressa), bo widzącemu kontekst
+		 * daje sam wiersz tabeli.
+		 *
+		 * Znalezione przez axe-core (`select-name`, waga „critical", 8 węzłów).
+		 * Lighthouse tego nie widział — nie umie się zalogować, a ten ekran jest
+		 * za logowaniem.
+		 */
+		$etykieta = sprintf(
+			/* translators: %s: nazwa firmy klienta. */
+			__( 'Nowy status procesu: %s', 'mp-sales-workflow' ),
+			(string) ( isset( $row['client_name'] ) ? $row['client_name'] : '' )
+		);
+		$id_pola = 'mp-sw-status-' . (int) $row['lead_id'];
+
+		echo '<label for="' . esc_attr( $id_pola ) . '" class="screen-reader-text">'
+			. esc_html( $etykieta ) . '</label>';
+		echo '<select name="to_status" id="' . esc_attr( $id_pola ) . '">';
 
 		foreach ( $cele as $cel ) {
 			echo '<option value="' . esc_attr( $cel ) . '">' . esc_html( self::status_label( $cel ) ) . '</option>';
