@@ -1,7 +1,19 @@
-# Egzamin końcowy — automatyzacja zapytań ofertowych (WordPress / WooCommerce)
+# MP Offer Automation Suite — automatyzacja zapytań ofertowych (WordPress / WooCommerce)
 
-Projekt składa się z **3 wtyczek** i **3 baz danych** (zestawów tabel MySQL),
-które razem tworzą spójny proces obsługi zapytań ofertowych z witryny WordPress.
+Pakiet **3 wtyczek** z **3 niezależnymi zestawami tabel MySQL**, które razem prowadzą
+zapytanie ofertowe od formularza na stronie do oferty PDF i zadania u handlowca —
+bez ręcznego przepisywania danych.
+
+### ▶ Zobacz, jak to działa — bez instalacji
+
+**[Uruchom demo w przeglądarce](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/krzysiek2115op/mp-offer-automation-suite/main/tools/strona-pokazowa/blueprint.json)**
+
+Kliknięcie stawia kompletnego WordPressa z trzema wtyczkami, WooCommerce po polsku
+i jednym pełnym przebiegiem procesu widocznym we wszystkich trzech bazach. Nic nie
+trzeba instalować — WordPress uruchamia się w Twojej przeglądarce (WebAssembly),
+a dane znikają po zamknięciu karty. Szczegóły: [`tools/strona-pokazowa`](tools/strona-pokazowa).
+
+---
 
 ## Cel biznesowy
 
@@ -26,7 +38,7 @@ danych między formularzem, WooCommerce i pocztą.
 
 Kolejność instalacji ma znaczenie: **1, potem 2, potem 3**. Wtyczka 2 nasłuchuje
 zdarzenia z wtyczki 1, a wtyczka 3 — zdarzeń z obu poprzednich. Gotowe paczki
-do wgrania są w [Releases](https://github.com/krzysiek2115op/egzamin-koncowy/releases).
+do wgrania są w [Releases](https://github.com/krzysiek2115op/mp-offer-automation-suite/releases).
 
 ### Wymagania
 
@@ -99,7 +111,7 @@ WordPressa i nie trafia do klienta, więc świadomie nie ma go w `main`.
 
 ## CI
 
-![CI](https://github.com/krzysiek2115op/egzamin-koncowy/actions/workflows/ci.yml/badge.svg?branch=main)
+![CI](https://github.com/krzysiek2115op/mp-offer-automation-suite/actions/workflows/ci.yml/badge.svg?branch=main)
 
 Przy każdym push/PR na `main` (oraz na gałęzie wtyczek) GitHub Actions
 (`.github/workflows/ci.yml`) uruchamia na PHP 7.4 i 8.3:
@@ -636,7 +648,7 @@ o łamaniu zasady „jeden plik na dział" przez wtyczkę 3 wziął się z błę
 w liczeniu (`ls | wc -l` liczył też `index.php`). To ona jedyna zasady
 przestrzegała; łamały ją wtyczki 1 i 2.
 
-Pełny rozpis: [`audyt/zgodnosc-ze-zleceniem.md`](https://github.com/krzysiek2115op/egzamin-koncowy/blob/audyt-projektu/audyt/zgodnosc-ze-zleceniem.md)
+Pełny rozpis: [`audyt/zgodnosc-ze-zleceniem.md`](https://github.com/krzysiek2115op/mp-offer-automation-suite/blob/audyt-projektu/audyt/zgodnosc-ze-zleceniem.md)
 (gałąź `audyt-projektu`). Zapis z przebiegu testów:
 [`raporty/PRZEBIEG-TESTOW.md`](raporty/PRZEBIEG-TESTOW.md).
 
