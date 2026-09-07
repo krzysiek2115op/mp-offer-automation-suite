@@ -74,8 +74,8 @@ is why the 8.1 requirement effectively applies to the whole delivery.
 
 ## Scale and quality
 
-- ~23,000 lines of PHP across 117 files (excluding vendor)
-- 300 commits, 14 semver releases, each with a packaged ZIP
+- 33,944 lines of production PHP across 160 files, plus 32,767 lines of tests across 101 files (excluding vendor)
+- 303 commits, 72 semver releases, each with a packaged ZIP
 - CI on a PHP 7.4 + 8.3 matrix: syntax checks, PHPCS/WPCS, and a **process harness of
   7 scenarios and 110 invariants**
 - separate security and regression test suites
