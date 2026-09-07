@@ -1,5 +1,7 @@
 # MP Offer Automation Suite — automatyzacja zapytań ofertowych (WordPress / WooCommerce)
 
+*[English version →](README.en.md)*
+
 Pakiet **3 wtyczek** z **3 niezależnymi zestawami tabel MySQL**, które razem prowadzą
 zapytanie ofertowe od formularza na stronie do oferty PDF i zadania u handlowca —
 bez ręcznego przepisywania danych.
