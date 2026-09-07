@@ -1,17 +1,35 @@
-# MP Offer Automation Suite — quote-to-offer automation for WordPress / WooCommerce
+<div align="center">
 
-*[Polish version →](README.md)*
+# MP Offer Automation Suite
 
-Three WordPress plugins that carry an enquiry from a form on the website to a PDF offer
-and a task for the sales rep — with no manual data entry in between.
+**From enquiry form to a finished PDF offer — with no manual data entry.**
+Three WordPress/WooCommerce plugins, each owning its own tables: lead intake and
+qualification → price calculation and PDF offer → sales process for the rep.
 
-### ▶ See it running — nothing to install
+[▶ Launch the demo](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/krzysiek2115op/mp-offer-automation-suite/main/tools/strona-pokazowa/blueprint.json) ·
+[Changelog](CHANGELOG.md) ·
+[Project audit](docs/AUDYT.md) ·
+[Releases](https://github.com/krzysiek2115op/mp-offer-automation-suite/releases) ·
+[GPL-2.0+ licence](LICENSE) ·
+[Polski](README.md)
 
-**[Launch the demo in your browser](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/krzysiek2115op/mp-offer-automation-suite/main/tools/strona-pokazowa/blueprint.json)**
+<br>
 
-One click boots a complete WordPress install with all three plugins, WooCommerce configured
-for Poland, and one full run of the process visible across all three databases. WordPress runs
-inside your browser via WebAssembly; the data disappears when you close the tab.
+[![Sales process dashboard — running process, assigned rep, SLA deadline](docs/zrzuty/01-procesy-sprzedazowe.png)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/krzysiek2115op/mp-offer-automation-suite/main/tools/strona-pokazowa/blueprint.json)
+
+*One click boots a complete WordPress install with all three plugins and one full
+run of the process. Nothing to install — WordPress runs inside your browser via
+WebAssembly, and the data disappears when you close the tab.*
+
+<sub>The demo runs on a **fictional client site, „Kredyt Kompas"** — the theme and
+its content are part of the presentation, not the product. The point is to show the
+plugins where they actually work: inside an existing company website. The same
+fictional brand appears in a separate project,
+[`kredyt-kompas-demo`](https://github.com/krzysiek2115op/kredyt-kompas-demo).</sub>
+
+![CI](https://github.com/krzysiek2115op/mp-offer-automation-suite/actions/workflows/ci.yml/badge.svg?branch=main)
+
+</div>
 
 ---
 
@@ -75,7 +93,7 @@ is why the 8.1 requirement effectively applies to the whole delivery.
 ## Scale and quality
 
 - 33,944 lines of production PHP across 160 files, plus 32,767 lines of tests across 101 files (excluding vendor)
-- 303 commits, 72 semver releases, each with a packaged ZIP
+- 304 commits on `main`, 72 semver releases and 168 tags, each release with a packaged ZIP
 - CI on a PHP 7.4 + 8.3 matrix: syntax checks, PHPCS/WPCS, and a **process harness of
   7 scenarios and 110 invariants**
 - separate security and regression test suites
@@ -90,11 +108,16 @@ levels, analysing project state from a `git worktree` rather than the working di
 
 It exists because the first serious audit found **8 critical bugs in code that passed the
 entire test suite**, including a 500 error when a form field arrived as an array, and a
-critical accessibility violation.
+critical accessibility violation. Full write-up: [`docs/AUDYT.md`](docs/AUDYT.md) (Polish).
 
 A green test suite doesn't mean the code is correct. It means it passes the tests someone
 thought to write. I now budget a separate verification pass into every delivery.
 
 ## Licence
 
-GPL-2.0 — see [LICENSE](LICENSE).
+GPL-2.0-or-later — see [LICENSE](LICENSE). Compatible with WordPress and WooCommerce,
+so the plugins can be distributed alongside them with no extra conditions.
+
+## Contributing
+
+Workflow, versioning and commit conventions: [`CONTRIBUTING.md`](CONTRIBUTING.md) (Polish).

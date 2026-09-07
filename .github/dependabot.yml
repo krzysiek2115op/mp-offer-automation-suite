@@ -1,0 +1,20 @@
+# Aktualizacje zależności. Sam fakt, że plik istnieje, jest sygnałem:
+# ktoś tu pilnuje bezpieczeństwa, a nie tylko dowozi funkcje.
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+
+  # Same akcje GitHuba też się starzeją — i to one mają dostęp do repo.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci"
